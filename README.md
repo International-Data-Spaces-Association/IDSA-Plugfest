@@ -5,8 +5,11 @@
 
 ## Overview
 This repository contains material for different workshops organized by the IDSA Plugfest Community.
+For the recent hands-on session you can find material for following workshops:
 - Connector hands-on Workshop
 - Docker with Apache Camel Workshop
+
+This repository will be updated continously according to upcoming events.
 
 ## What is the IDSA Plugfest?
 The IDSA Plugfest Community is a sub-group of the [IDSA Working Group Architecture](https://internationaldataspaces.org/make/working-groups/). As 'Developers' Community' the group deals with all implementation-related aspects of the IDS Architecture.
