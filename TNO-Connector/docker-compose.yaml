@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  core-container:
+    image: registry.ids.smart-connected.nl/public/core-container:plugfest-2021-q3
+    volumes:
+      - ./application.yaml:/config/application.yaml
+    ports:
+      - "8080:8080"
+  
+  core-container-ui:
+    image: registry.ids.smart-connected.nl/public/core-container-ui:plugfest-2021-q3
+    ports:
+      - "8083:80"
+    environment:
+      API_BACKEND: core-container:8082/api/

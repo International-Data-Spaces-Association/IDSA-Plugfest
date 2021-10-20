@@ -1,0 +1,260 @@
+{
+	"info": {
+		"_postman_id": "8afeabf9-4144-409d-8a07-4861b0e7921e",
+		"name": "Plugfest Connector Localhost",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Retrieve remote selfdescription",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retrieve First Resource ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"resourceId\", jsonData[\"ids:resourceCatalog\"][0][\"ids:offeredResource\"][0][\"@id\"]);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/ld+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{API_URL}}/api/description?connectorId={{TNO_SCSN_CONNECTOR}}&agentId={{TNO_AGENT}}&accessUrl={{TNO_ACCESS_URL}}/selfdescription",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"api",
+						"description"
+					],
+					"query": [
+						{
+							"key": "connectorId",
+							"value": "{{TNO_SCSN_CONNECTOR}}"
+						},
+						{
+							"key": "agentId",
+							"value": "{{TNO_AGENT}}"
+						},
+						{
+							"key": "accessUrl",
+							"value": "{{TNO_ACCESS_URL}}/selfdescription"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve contract offer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retrieve Contract Offer\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"contractOffer\", JSON.stringify(jsonData[\"ids:contractOffer\"][0]));\r",
+							"    pm.collectionVariables.set(\"artifactId\", jsonData[\"ids:representation\"][0][\"ids:instance\"][0]['@id']);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/ld+json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{API_URL}}/api/description?connectorId={{TNO_SCSN_CONNECTOR}}&agentId={{TNO_AGENT}}&accessUrl={{TNO_ACCESS_URL}}/selfdescription&requestedElement={{resourceId}}",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"api",
+						"description"
+					],
+					"query": [
+						{
+							"key": "connectorId",
+							"value": "{{TNO_SCSN_CONNECTOR}}"
+						},
+						{
+							"key": "agentId",
+							"value": "{{TNO_AGENT}}"
+						},
+						{
+							"key": "accessUrl",
+							"value": "{{TNO_ACCESS_URL}}/selfdescription"
+						},
+						{
+							"key": "requestedElement",
+							"value": "{{resourceId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request Contract",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Retrieve Contract ID\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"contractAgreement\", jsonData[\"@id\"]);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "contractOffer",
+							"value": "{{contractOffer}}",
+							"type": "text"
+						},
+						{
+							"key": "connectorId",
+							"value": "{{TNO_SCSN_CONNECTOR}}",
+							"type": "text"
+						},
+						{
+							"key": "agentId",
+							"value": "{{TNO_AGENT}}",
+							"type": "text"
+						},
+						{
+							"key": "accessUrl",
+							"value": "{{TNO_ACCESS_URL}}/router/artifacts",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{API_URL}}/api/artifacts/consumer/contractRequest",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"api",
+						"artifacts",
+						"consumer",
+						"contractRequest"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve artifact",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{API_URL}}/api/artifacts/consumer/artifact?artifact={{artifactId}}&connectorId={{TNO_SCSN_CONNECTOR}}&agentId={{TNO_AGENT}}&accessUrl={{TNO_ACCESS_URL}}/router/artifacts&transferContract={{contractAgreement}}",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"api",
+						"artifacts",
+						"consumer",
+						"artifact"
+					],
+					"query": [
+						{
+							"key": "artifact",
+							"value": "{{artifactId}}"
+						},
+						{
+							"key": "connectorId",
+							"value": "{{TNO_SCSN_CONNECTOR}}"
+						},
+						{
+							"key": "agentId",
+							"value": "{{TNO_AGENT}}"
+						},
+						{
+							"key": "accessUrl",
+							"value": "{{TNO_ACCESS_URL}}/router/artifacts"
+						},
+						{
+							"key": "transferContract",
+							"value": "{{contractAgreement}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "API_URL",
+			"value": "http://localhost:8083"
+		},
+		{
+			"key": "TNO_SCSN_CONNECTOR",
+			"value": "http://tnoscsn.demo"
+		},
+		{
+			"key": "TNO_AGENT",
+			"value": "urn:ids:TNO"
+		},
+		{
+			"key": "TNO_ACCESS_URL",
+			"value": "https://scsn.ids.smart-connected.nl"
+		}
+	]
+}
