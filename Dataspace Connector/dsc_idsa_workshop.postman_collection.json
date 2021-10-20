@@ -1,0 +1,431 @@
+{
+	"info": {
+		"_postman_id": "ed567d1d-d39b-4734-b668-49dc50dc3588",
+		"name": "IDSA Plugfest Workshop - Dataspace Connector",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Deployment tests",
+			"item": [
+				{
+					"name": "Step 1: Send self-description",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}"
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 2: Send ids message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/description?recipient={{connectorUrl}}:{{port}}/api/ids/data",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"description"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{connectorUrl}}:{{port}}/api/ids/data",
+									"description": "The recipient url."
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Broker communication",
+			"item": [
+				{
+					"name": "Step 1: Test connection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{brokerUrl}}",
+							"host": [
+								"{{brokerUrl}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 2: Full-text search",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var value = responseBody.toString();\r",
+									"var substring = value.substring(value.search(\"<\") + 1, value.search(\">\"))\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"connectorId\", substring);\r",
+									"console.log(postman.getEnvironmentVariable(\"connectorId\"))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "Plugfest"
+						},
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/search?recipient={{brokerUrl}}/infrastructure&limit=50&offset=0",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"search"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{brokerUrl}}/infrastructure",
+									"description": "The recipient url."
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 3: Description request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var connector = JSON.parse(responseBody)\r",
+									"var connectorId = connector['@graph'][2]['accessURL'];\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"remoteUrl\", connectorId);\r",
+									"console.log(postman.getEnvironmentVariable(\"remoteUrl\"))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/description?recipient={{brokerUrl}}/infrastructure&elementId={{connectorId}}",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"description"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{brokerUrl}}/infrastructure",
+									"description": "The recipient url."
+								},
+								{
+									"key": "elementId",
+									"value": "{{connectorId}}",
+									"description": "The connector id."
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Connector communication",
+			"item": [
+				{
+					"name": "Step 1: Request self-description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var connector = JSON.parse(responseBody)\r",
+									"var catalogId = connector['ids:resourceCatalog'][1]['@id']\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"catalogId\", catalogId);\r",
+									"console.log(postman.getEnvironmentVariable(\"catalogId\"))"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/description?recipient={{remoteUrl}}",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"description"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{remoteUrl}}",
+									"description": "The recipient url."
+								},
+								{
+									"key": "elementId",
+									"value": "...",
+									"description": "The id of the element you would like to query.",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 2: Request catalog description",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var catalog = JSON.parse(responseBody)\r",
+									"var resource = catalog['ids:offeredResource'][0]\r",
+									"var resourceId = resource['@id']\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"resourceId\", resourceId);\r",
+									"console.log(postman.getEnvironmentVariable(\"resourceId\"))\r",
+									"\r",
+									"var artifactId = resource['ids:representation'][0]['ids:instance'][0]['@id']\r",
+									"postman.setEnvironmentVariable(\"artifactId\", artifactId);\r",
+									"console.log(postman.getEnvironmentVariable(\"artifactId\"))\r",
+									"\r",
+									"var rule = resource['ids:contractOffer'][0]['ids:permission'][0]\r",
+									"rule['ids:target'] = artifactId\r",
+									"\r",
+									"postman.setEnvironmentVariable(\"rule\", JSON.stringify(rule));\r",
+									"console.log(postman.getEnvironmentVariable(\"rule\"))\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/description?recipient={{remoteUrl}}&elementId={{catalogId}}",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"description"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{remoteUrl}}",
+									"description": "The recipient url."
+								},
+								{
+									"key": "elementId",
+									"value": "{{catalogId}}",
+									"description": "The id of the element you would like to query."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 3: Negotiate contract",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var agreement = JSON.parse(responseBody);\r",
+									"console.log(agreement);\r",
+									"postman.setEnvironmentVariable(\"artifacts\", agreement['_links']['self']['href'] + \"/artifacts\");\r",
+									"console.log(postman.getEnvironmentVariable(\"artifacts\"));\r",
+									"\r",
+									"pm.sendRequest({\r",
+									"    url: postman.getEnvironmentVariable(\"artifacts\"),\r",
+									"    method: 'GET',\r",
+									"    header: {\r",
+									"        'content-type': 'application/json',\r",
+									"        'authorization': request.headers[\"authorization\"]\r",
+									"    },\r",
+									"\r",
+									"}, function (err, res) {\r",
+									"    var dataLink = res.json()['_embedded']['artifacts'][0]['_links']['data']['href']\r",
+									"\r",
+									"    postman.setEnvironmentVariable(\"dataLink\", dataLink);\r",
+									"    console.log(postman.getEnvironmentVariable(\"dataLink\"));\r",
+									"});\r",
+									"\r",
+									"    "
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {{rule}}\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{connectorUrl}}:{{port}}/api/ids/contract?recipient={{remoteUrl}}&resourceIds={{resourceId}}&artifactIds={{artifactId}}&download=false",
+							"host": [
+								"{{connectorUrl}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"ids",
+								"contract"
+							],
+							"query": [
+								{
+									"key": "recipient",
+									"value": "{{remoteUrl}}",
+									"description": "The recipient url."
+								},
+								{
+									"key": "resourceIds",
+									"value": "{{resourceId}}",
+									"description": "A list of resource IDs."
+								},
+								{
+									"key": "artifactIds",
+									"value": "{{artifactId}}",
+									"description": "A list of artifact IDs."
+								},
+								{
+									"key": "download",
+									"value": "false",
+									"description": "Does not need to be set to true."
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Step 4: Access data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dataLink}}",
+							"host": [
+								"{{dataLink}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "password",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "admin",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
